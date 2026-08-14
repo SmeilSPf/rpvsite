@@ -39,6 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const iconBgDynamic = bgToggleBtn ? bgToggleBtn.querySelector('.icon-bg-dynamic') : null;
   const iconBgStatic = bgToggleBtn ? bgToggleBtn.querySelector('.icon-bg-static') : null;
 
+  // Элементы цитат в шапке
+  const headerQuoteText = document.getElementById('headerQuoteText');
+  const headerQuoteContainer = document.getElementById('headerQuoteContainer');
+
   // Дефолтное изображение, если картинка персонажа не загрузилась
   const DEFAULT_PHOTO = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=800&q=80';
 
@@ -200,7 +204,95 @@ document.addEventListener('DOMContentLoaded', () => {
   initBackgroundSlider();
 
   /* =========================================================
-     3. Сортировка, фильтрация и отрисовка карточек персонажей
+     3. Умная ротация цитат в шапке (каждые 5 сек, без повторов подряд)
+     ========================================================= */
+  let quoteTimer = null;
+  let quotePool = [];
+  let lastQuoteIndex = -1;
+
+  const quoteList = (typeof SITE_QUOTES !== 'undefined' && Array.isArray(SITE_QUOTES) && SITE_QUOTES.length > 0)
+    ? SITE_QUOTES
+    : [
+        "«Я смог и вы сможете.» — Григорий",
+        "«Я стал тем, кем даже не мечтал быть...» — Мопс Мопсович",
+        "«Главное это деньги и люди. Шучу, не люди.» — Барон ДеШон",
+        "«Быть умным не значит быть впереди всех.» — Прокофий"
+      ];
+
+  // Создаем колоду (shuffle bag) со случайным порядком, исключая повторы на стыке колод
+  function refillQuoteBag() {
+    const indices = Array.from({ length: quoteList.length }, (_, i) => i);
+    // Fisher-Yates shuffle
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+
+    // Если первая цитата новой колоды совпадает с последней цитатой предыдущей колоды, меняем её
+    if (indices.length > 1 && indices[0] === lastQuoteIndex) {
+      const swapIndex = Math.floor(Math.random() * (indices.length - 1)) + 1;
+      [indices[0], indices[swapIndex]] = [indices[swapIndex], indices[0]];
+    }
+
+    quotePool = indices;
+  }
+
+  function getNextQuote() {
+    if (quoteList.length === 0) return '';
+    if (quoteList.length === 1) return quoteList[0];
+
+    if (quotePool.length === 0) {
+      refillQuoteBag();
+    }
+
+    const nextIndex = quotePool.shift();
+    lastQuoteIndex = nextIndex;
+    return quoteList[nextIndex];
+  }
+
+  function updateQuoteSmoothly() {
+    if (!headerQuoteText || quoteList.length === 0) return;
+
+    // Плавно растворяем текущую цитату
+    headerQuoteText.classList.remove('fade-in');
+    headerQuoteText.classList.add('fade-out');
+
+    // Через время анимации исчезновения меняем текст и плавно проявляем
+    setTimeout(() => {
+      const nextQuote = getNextQuote();
+      headerQuoteText.textContent = nextQuote;
+      if (headerQuoteContainer) {
+        headerQuoteContainer.setAttribute('title', nextQuote);
+      }
+      headerQuoteText.classList.remove('fade-out');
+      headerQuoteText.classList.add('fade-in');
+    }, 450);
+  }
+
+  function initQuoteRotator() {
+    if (!headerQuoteText || quoteList.length === 0) {
+      if (headerQuoteContainer) headerQuoteContainer.style.display = 'none';
+      return;
+    }
+
+    // Показываем первую случайную цитату
+    const firstQuote = getNextQuote();
+    headerQuoteText.textContent = firstQuote;
+    if (headerQuoteContainer) {
+      headerQuoteContainer.setAttribute('title', firstQuote);
+    }
+    headerQuoteText.classList.add('fade-in');
+
+    // Каждые 5 секунд меняем цитату
+    if (quoteList.length > 1) {
+      quoteTimer = setInterval(updateQuoteSmoothly, 5000);
+    }
+  }
+
+  initQuoteRotator();
+
+  /* =========================================================
+     4. Сортировка, фильтрация и отрисовка карточек персонажей
      ========================================================= */
   function isCharacterAlive(char) {
     if (char.status === undefined || char.status === null) return true;
@@ -313,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* =========================================================
-     4. Переход к детальному просмотру персонажа
+     5. Переход к детальному просмотру персонажа
      ========================================================= */
   function showCharacterDetails(characterId) {
     const char = CHARACTERS.find(c => String(c.id) === String(characterId));
@@ -402,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('hashchange', handleRoute);
 
   /* =========================================================
-     5. Модальное окно информации (Кнопка ?)
+     6. Модальное окно информации (Кнопка ?)
      ========================================================= */
   function openModal() {
     infoModal.classList.add('open');

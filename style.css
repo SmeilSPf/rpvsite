@@ -109,9 +109,11 @@ body {
   width: 100%;
 }
 
-/* Шапка сайта */
+/* =========================================
+   Шапка сайта (Шторка)
+   ========================================= */
 .site-header {
-  background-color: rgba(22, 27, 34, 0.82);
+  background-color: rgba(22, 27, 34, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
@@ -123,10 +125,11 @@ body {
 .header-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 24px;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
 }
 
 .logo-link {
@@ -135,6 +138,7 @@ body {
   gap: 12px;
   text-decoration: none;
   color: var(--text-primary);
+  flex-shrink: 0;
   transition: var(--transition);
 }
 
@@ -160,6 +164,62 @@ body {
   font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+/* =========================================
+   Цитаты в шторке (центр шапки)
+   ========================================= */
+.header-quote-container {
+  flex: 1;
+  max-width: 580px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(13, 17, 23, 0.45);
+  border: 1px solid rgba(48, 54, 61, 0.6);
+  padding: 6px 16px;
+  border-radius: 20px;
+  overflow: hidden;
+  min-height: 36px;
+}
+
+.quote-symbol {
+  font-size: 1.3rem;
+  font-family: Georgia, serif;
+  color: #a5d6ff;
+  opacity: 0.7;
+  line-height: 1;
+}
+
+.quote-text-wrapper {
+  flex: 1;
+  overflow: hidden;
+  text-align: center;
+}
+
+.header-quote-text {
+  font-size: 0.88rem;
+  font-style: italic;
+  color: #c9d1d9;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header-quote-text.fade-out {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.header-quote-text.fade-in {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Блок кнопок справа в шапке */
@@ -167,6 +227,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .header-icon-btn {
@@ -805,7 +866,17 @@ body {
 }
 
 /* Адаптивность для телефонов и планшетов */
+@media (max-width: 960px) {
+  .header-quote-container {
+    max-width: 320px;
+  }
+}
+
 @media (max-width: 860px) {
+  .header-quote-container {
+    display: none; /* Скрываем в узких экранах, чтобы не загромождать шапку */
+  }
+
   .section-header-wrap {
     flex-direction: column;
     align-items: flex-start;

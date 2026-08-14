@@ -21,14 +21,24 @@
   <!-- Аудио-элемент для фоновой музыки -->
   <audio id="bgAudio" preload="auto" loop></audio>
 
-  <!-- Шапка сайта -->
+  <!-- Шапка сайта (Шторка) -->
   <header class="site-header">
     <div class="header-container">
+      <!-- Название сайта слева -->
       <a href="#/" class="logo-link" id="logoLink" title="На главную">
         <span class="logo-icon">★</span>
         <h1 class="site-title">Известные люди V</h1>
       </a>
       
+      <!-- Блок цитат по центру (между названием сайта и кнопками) -->
+      <div class="header-quote-container" id="headerQuoteContainer" aria-live="polite">
+        <span class="quote-symbol">“</span>
+        <div class="quote-text-wrapper">
+          <p class="header-quote-text" id="headerQuoteText"></p>
+        </div>
+      </div>
+
+      <!-- Кнопки справа -->
       <div class="header-actions">
         <!-- Кнопка статичного фона (слева от кнопки музыки) -->
         <button class="header-icon-btn bg-toggle-btn" id="bgToggleBtn" aria-label="Зафиксировать фон" title="Сделать фон статичным">
